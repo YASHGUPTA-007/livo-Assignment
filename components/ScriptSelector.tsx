@@ -12,6 +12,12 @@ import {
   BookOpen,
   ArrowRight,
   Search,
+  Dices,
+  Swords,
+  Rocket,
+  Heart,
+  Skull,
+  Smile,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,13 +34,13 @@ interface GeneratedScript extends Script {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const GENRES = [
-  { id: "random",    label: "Random",    emoji: "🎲", value: null },
-  { id: "adventure", label: "Adventure", emoji: "⚔️", value: "adventure" },
-  { id: "mystery",   label: "Mystery",   emoji: "🔍", value: "mystery" },
-  { id: "sci-fi",    label: "Sci-Fi",    emoji: "🚀", value: "sci-fi" },
-  { id: "romance",   label: "Romance",   emoji: "💖", value: "romance" },
-  { id: "horror",    label: "Horror",    emoji: "👻", value: "horror" },
-  { id: "comedy",    label: "Comedy",    emoji: "😂", value: "comedy" },
+  { id: "random",    label: "Random",    icon: Dices,  value: null },
+  { id: "adventure", label: "Adventure", icon: Swords, value: "adventure" },
+  { id: "mystery",   label: "Mystery",   icon: Search, value: "mystery" },
+  { id: "sci-fi",    label: "Sci-Fi",    icon: Rocket, value: "sci-fi" },
+  { id: "romance",   label: "Romance",   icon: Heart,  value: "romance" },
+  { id: "horror",    label: "Horror",    icon: Skull,  value: "horror" },
+  { id: "comedy",    label: "Comedy",    icon: Smile,  value: "comedy" },
 ];
 
 const DURATION_PRESETS = [
@@ -239,7 +245,9 @@ function AIModal({ onClose, onSelect }: AIModalProps) {
                 <p className="text-xs text-sage-700 mt-0.5">What kind of story do you want?</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                {GENRES.map((g) => (
+                {GENRES.map((g) => {
+                  const Icon = g.icon;
+                  return (
                   <button
                     key={g.id}
                     onClick={() => setGenre(g.value)}
@@ -249,10 +257,11 @@ function AIModal({ onClose, onSelect }: AIModalProps) {
                         : "bg-transparent text-sage-700 border-sage-700/20 hover:border-sage-700 hover:text-sage-900"
                     }`}
                   >
-                    <span className="text-base">{g.emoji}</span>
+                    <Icon className="h-4 w-4" />
                     {g.label}
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
