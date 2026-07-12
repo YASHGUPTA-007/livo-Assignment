@@ -209,7 +209,7 @@ export default function HistoryPage() {
 
   useEffect(() => {
     if (!user) {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
       return;
     }
 

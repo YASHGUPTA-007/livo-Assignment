@@ -10,7 +10,7 @@ const WORDS_PER_SECOND = 2.2;
 
 export async function POST(req: NextRequest) {
   try {
-    const { seconds, genre } = await req.json();
+    const { seconds, genre, difficulty = "Medium" } = await req.json();
 
     if (!seconds || typeof seconds !== "number" || seconds < 15 || seconds > 120) {
       return NextResponse.json(
@@ -24,11 +24,14 @@ export async function POST(req: NextRequest) {
       ? `The story should be a ${genre} story.`
       : "Pick a random genre (adventure, mystery, romance, sci-fi, horror, or comedy).";
 
+    const difficultyInstruction = `The reading difficulty level should be ${difficulty}. ${difficulty === "Easy" ? "Use simple words and short, highly readable sentences." : difficulty === "Hard" ? "Use advanced vocabulary, complex sentence structures, and challenging phonemes." : "Use an intermediate mix of vocabulary."}`;
+
     const prompt = `You are a creative storytelling assistant. Generate an engaging, vivid short story for an English pronunciation practice app.
 
 Requirements:
 - The story must be exactly around ${targetWordCount} words (±10 words) — do NOT go significantly over or under.
 - ${genreInstruction}
+- ${difficultyInstruction}
 - The story should be a single continuous paragraph — no line breaks, no headers, no bullets.
 - Use varied vocabulary, good sentence rhythm, and clear pronunciation-friendly language.
 - Make it engaging and interesting — the reader should be hooked from the first sentence.
@@ -50,15 +53,6 @@ Generate the story now:`;
       return NextResponse.json({ error: "Failed to generate story" }, { status: 500 });
     }
 
-    // Determine difficulty based on seconds
-    let difficulty: "Easy" | "Medium" | "Hard";
-    if (seconds <= 30) {
-      difficulty = "Easy";
-    } else if (seconds <= 60) {
-      difficulty = "Medium";
-    } else {
-      difficulty = "Hard";
-    }
 
     // Generate a short title
     const titleCompletion = await groq.chat.completions.create({

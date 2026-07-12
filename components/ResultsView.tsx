@@ -43,7 +43,7 @@ function useTts() {
 
   useEffect(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      setTtsState("unavailable");
+      setTimeout(() => setTtsState("unavailable"), 0);
       return;
     }
 

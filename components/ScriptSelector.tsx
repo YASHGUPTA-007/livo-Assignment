@@ -47,9 +47,6 @@ const DURATION_PRESETS = [
   { seconds: 15,  label: "15s"  },
   { seconds: 30,  label: "30s"  },
   { seconds: 45,  label: "45s"  },
-  { seconds: 60,  label: "1 min" },
-  { seconds: 90,  label: "90s"  },
-  { seconds: 120, label: "2 min" },
 ];
 
 const GENERATION_STEPS = [
@@ -93,6 +90,7 @@ interface AIModalProps {
 function AIModal({ onClose, onSelect }: AIModalProps) {
   const [seconds, setSeconds]             = useState(30);
   const [genre, setGenre]                 = useState<string | null>(null);
+  const [difficulty, setDifficulty]       = useState<"Easy" | "Medium" | "Hard">("Medium");
   const [step, setStep]                   = useState<"configure" | "result">("configure");
   const [isGenerating, setIsGenerating]   = useState(false);
   const [generationStep, setGenerationStep] = useState(0);
@@ -125,7 +123,7 @@ function AIModal({ onClose, onSelect }: AIModalProps) {
       const res = await fetch("/api/generate-script", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ seconds, genre }),
+        body: JSON.stringify({ seconds, genre, difficulty }),
       });
       clearInterval(timer);
 
@@ -215,24 +213,42 @@ function AIModal({ onClose, onSelect }: AIModalProps) {
                 <input
                   type="range"
                   min={15}
-                  max={120}
+                  max={45}
                   step={5}
                   value={seconds}
                   onChange={(e) => setSeconds(Number(e.target.value))}
                   className="w-full"
-                  style={{ background: sliderBg(seconds, 15, 120) }}
+                  style={{ background: sliderBg(seconds, 15, 45) }}
                 />
                 <div className="flex justify-between text-[10px] font-bold text-sage-700 mt-2">
                   <span>15s</span>
-                  <span className={`px-2 py-0.5 rounded ${
-                    seconds <= 30 ? "bg-sage-300 text-sage-900"
-                    : seconds <= 60 ? "bg-sage-300 text-sage-900"
-                    : "bg-sage-300 text-sage-900"
-                  }`}>
-                    {seconds <= 30 ? "EASY" : seconds <= 60 ? "MEDIUM" : "HARD"}
-                  </span>
-                  <span>2 min</span>
+                  <span>45s</span>
                 </div>
+              </div>
+            </div>
+
+            <div className="border-t border-sage-700/20" />
+
+            {/* Difficulty */}
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-bold text-sage-900">Difficulty Level</p>
+                <p className="text-xs text-sage-700 mt-0.5">How challenging should the vocabulary be?</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(["Easy", "Medium", "Hard"] as const).map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setDifficulty(d)}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all duration-200 ${
+                      difficulty === d
+                        ? "bg-sage-300 text-sage-900 border-sage-700 shadow-sm"
+                        : "bg-transparent text-sage-700 border-sage-700/20 hover:border-sage-700 hover:text-sage-900"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -296,7 +312,7 @@ function AIModal({ onClose, onSelect }: AIModalProps) {
 
         {/* ── Result step ── */}
         {step === "result" && generated && (
-          <div className="p-6 sm:p-8 space-y-6">
+          <div className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-sage-900 uppercase tracking-widest">

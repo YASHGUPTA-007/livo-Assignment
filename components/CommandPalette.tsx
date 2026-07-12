@@ -39,7 +39,7 @@ export default function CommandPalette() {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
-      setQuery("");
+      setTimeout(() => setQuery(""), 0);
     } else {
       document.body.style.overflow = "unset";
     }

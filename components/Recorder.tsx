@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Script } from "@/lib/scripts";
 import { Mic, StopCircle, Upload, RefreshCw, BookOpen, AudioLines } from "lucide-react";
 
@@ -31,11 +31,6 @@ export default function Recorder({ script, onSubmit, onCancel, maxSeconds = 45 }
     };
   }, [audioUrl]);
 
-  useEffect(() => {
-    if (recordingTime >= maxSeconds && isRecording) {
-      stopRecording();
-    }
-  }, [recordingTime, isRecording, maxSeconds]);
 
   const startRecording = async () => {
     setErrorMsg(null);
@@ -72,13 +67,19 @@ export default function Recorder({ script, onSubmit, onCancel, maxSeconds = 45 }
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       if (timerRef.current) clearInterval(timerRef.current);
     }
-  };
+  }, [isRecording]);
+
+  useEffect(() => {
+    if (recordingTime >= maxSeconds * 2 && isRecording) {
+      stopRecording();
+    }
+  }, [recordingTime, isRecording, maxSeconds, stopRecording]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMsg(null);
@@ -91,8 +92,8 @@ export default function Recorder({ script, onSubmit, onCancel, maxSeconds = 45 }
 
     audio.onloadedmetadata = () => {
       const duration = audio.duration;
-      if (duration < 15 || duration > maxSeconds + 1) {
-        setErrorMsg(`Your file is ${Math.round(duration)}s long. It must be between 15 and ${maxSeconds} seconds.`);
+      if (duration < 5) {
+        setErrorMsg(`Your file is ${Math.round(duration)}s long. Please provide a slightly longer recording.`);
         URL.revokeObjectURL(url);
       } else {
         setAudioBlob(file);
@@ -108,9 +109,8 @@ export default function Recorder({ script, onSubmit, onCancel, maxSeconds = 45 }
 
   const handleSubmit = () => {
     if (audioBlob) {
-      const upperBound = maxSeconds + 1;
-      if (recordingTime > 0 && (recordingTime < 15 || recordingTime > upperBound)) {
-         setErrorMsg(`Recording must be between 15-${maxSeconds} seconds. (Currently ${recordingTime}s)`);
+      if (recordingTime > 0 && recordingTime < 5) {
+         setErrorMsg(`Recording is too short (${recordingTime}s). Please read the script fully.`);
          return;
       }
       onSubmit(audioBlob);
@@ -181,7 +181,7 @@ export default function Recorder({ script, onSubmit, onCancel, maxSeconds = 45 }
                   Ready to record?
                 </h4>
                 <p className="text-sm font-medium text-black/60">
-                  Read the script aloud. Aim for 15 – {maxSeconds} seconds.
+                  Read the script aloud. Press "Finish Recording" when you are done.
                 </p>
               </div>
 
@@ -194,7 +194,7 @@ export default function Recorder({ script, onSubmit, onCancel, maxSeconds = 45 }
                           key={i} 
                           className="w-1.5 bg-red-500 rounded-full animate-bounce"
                           style={{ 
-                            height: `${Math.random() * 100 + 40}%`,
+                            height: `${(i * 37) % 60 + 40}%`,
                             animationDelay: `${i * 0.1}s`,
                             animationDuration: '0.8s'
                           }} 
