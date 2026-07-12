@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import CommandPalette from "./CommandPalette";
-import { Menu } from "lucide-react";
+import { Menu, ArrowLeft } from "lucide-react";
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar state
   const [isCollapsed, setIsCollapsed] = useState(false); // Desktop collapse state
+  const pathname = usePathname();
 
   return (
     <div className="flex h-screen overflow-hidden bg-sage-100">
@@ -37,6 +40,17 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         
         <main className="flex-1 p-4 sm:p-8 lg:p-10">
           <div className="mx-auto max-w-[1400px]">
+            {pathname !== "/dashboard" && (
+              <div className="mb-6">
+                <Link 
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 text-sm font-bold text-black/50 hover:text-black transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Dashboard
+                </Link>
+              </div>
+            )}
             {children}
           </div>
         </main>
